@@ -1,0 +1,109 @@
+##引入mybatis支持
+$!{mybatisCodehelper.vm}
+$!{mybatisSupport.vm}
+
+
+##设置保存名称与保存位置
+#set($XmlSavePath = $tool.append(${mapperXmlFolder},"/",${mapperXmlPackage.replace(".","/")}))
+$!callback.setSavePath($XmlSavePath)
+$!callback.setFileName($tool.append($!{tableInfo.name}, $!{mapperSuffix},".xml"))
+
+#set($daoName = $tool.append($tableInfo.name, ${daoSuffix}))
+
+##拿到主键
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $tableInfo.pkColumn.get(0))
+#end
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="${mapperPackageName}.${daoName}">
+
+    <resultMap id="BaseResultMap" type="$!{modelPackageName}.pojo.entity.$!{entityName}">
+        <!--@Table $!{tableInfo.obj.name}-->
+        #foreach($column in $tableInfo.fullColumn)
+            <result property="$!column.name" column="$!column.obj.name"/>
+        #end
+    </resultMap>
+
+    <sql id="BASE_SELECT">
+           #allSqlColumn()
+    </sql>
+
+    <!-- 获取数量 -->
+    <select id="getCount" resultType="long">
+        select count(*)
+        from $!{tableInfo.obj.name}
+        where is_deleted = 0
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="getPage" resultMap="BaseResultMap">
+        select <include refid="BASE_SELECT"/>
+        from $!{tableInfo.obj.name}
+        where is_deleted = 0
+        limit #{startIndex}, #{size}
+    </select>
+
+    <!-- 通过id查询 -->
+    <select id="getById" resultMap="BaseResultMap">
+        select <include refid="BASE_SELECT" />
+        from $!{tableInfo.obj.name}
+        where $!pk.obj.name = #{$!pk.name}
+    </select>
+
+    <!-- 通过属性条件查询 -->
+    <select id="getByProperty" resultMap="BaseResultMap">
+        select <include refid="BASE_SELECT"/>
+        from $!{tableInfo.obj.name}
+        <where>
+        #foreach($column in $tableInfo.otherColumn)
+        #if($foreach.index==0)
+           <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
+               $!column.obj.name = #{$!column.name}
+           </if>
+                #else
+           <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
+               and $!column.obj.name = #{$!column.name}
+           </if>
+            #end#end
+        </where>
+    </select>
+
+    <!-- 添加数据 -->
+    <insert id="add">
+        insert into $!{tableInfo.obj.name}
+        (#foreach($column in $tableInfo.fullColumn)$!column.obj.name#if($foreach.hasNext), #if($foreach.count%8==0)
+          #end#end#end)
+        values
+        (#foreach($column in $tableInfo.fullColumn)#{$!{column.name}}#if($foreach.hasNext), #if($foreach.count%8==0)
+          #end#end#end)
+    </insert>
+
+    <!-- 修改数据 -->
+    <update id="set">
+        update $!{tableInfo.obj.name}
+        <set>
+       #foreach($column in $tableInfo.otherColumn)
+        #if($foreach.index==0)
+           <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
+                $!column.obj.name = #{$!column.name}
+           </if>
+                #else
+           <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
+               , $!column.obj.name = #{$!column.name}
+           </if>
+                #end#end
+        </set>
+        where $!pk.obj.name = #{$!pk.name}
+    </update>
+
+    <!-- 逻辑删除 -->
+    <update id="del">
+        update $!{tableInfo.obj.name}
+        set is_deleted = #{isDeleted}
+        where $!pk.obj.name = #{$!pk.name}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,74 @@
+##following code can be generated use MybatisCodeHelperPro plugin mybatis generator mingrate to template generate.
+##copy group for different project.
+#set($javamodelSrcFolder="${projectPath}/src/main/java")
+#set($groupName="com.example")                      ### 公司名
+#set($artifactName="springbootredis")                       ### 项目名或者模块名
+###set($idTypeName="IdType.AUTO")                      ### 实体类id默认策略
+#set($modelPackageName="${groupName}.${artifactName}")
+#set($mapperSrcFolder="${projectPath}/src/main/java")
+#set($mapperPackageName="${modelPackageName}.dao")    ### dao包路径
+#set($mapperXmlFolder="${projectPath}/src/main/java")
+#set($mapperXmlPackage="${mapperPackageName}.impl")   ### dao层接口的实现类的包路径（xml文件的包路径）
+#set($serviceSrcFolder="${projectPath}/src/main/java")
+#set($servicePackageName="${modelPackageName}.service")  ### service包路径
+#set($serviceImplSrcFolder="${projectPath}/src/main/java")
+#set($serviceImplPackageName="${modelPackageName}.service.impl")  ### serviceImpl包路径
+#set($controllerSrcFolder="${projectPath}/src/main/java")
+#set($controllerPackageName="${modelPackageName}.controller")   ### controller包路径
+#set($utilsSrcFolder="${projectPath}/src/main/java")
+#set($utilsPackageName="${modelPackageName}.utils")  ###工具类包路径
+#set($useLombok=true)
+#set($useSwagger=false)     ### 需swagger2或knife4j等依赖
+#set($useOpenApi=false)     ### 需swagger3依赖
+#set($addSchemaName=false)
+#set($mapperSuffix="Mapper")   ### xml文件拼接的后缀
+#set($daoSuffix="Mapper")  ### dao层接口名拼接的后缀
+#set($useActualColumName=false)
+#set($modelSuffix="")    ### 实体类类名拼接的后缀
+
+#if($useActualColumName)
+    #foreach($column in $tableInfo.fullColumn)
+        $!column.setName($column.obj.name)
+    #end
+#end
+
+#*remove table prefix*#
+###set($removeTablePrefix="sys_")
+#set($pojoSrcFolder="${projectPath}/src/main/java")
+#set($pojoPackageName="${modelPackageName}.pojo") ### pojo包路径
+#set($entityPackageName="${pojoPackageName}.po") ### entity路径
+#set($entityName=${tableInfo.name})         ### 实体类名为数据库表名
+#if($tableInfo.obj.name.startsWith("sys_"))
+    #set($entityName = ${tableInfo.name.substring(3)})
+#end
+#set($entityName = $tool.append($entityName,$modelSuffix))
+#set($responseName="JsonResponse")               ### 响应工具类名
+#set($responsePackageName="${pojoPackageName}.response")   ### 响应工具类包名
+#set($resultResponseName="ResponseUtils")               ### 响应工具类名
+
+
+#*add model Suffix to model name*#
+###set($modelSuffix="Model")
+##${tableInfo.setName($tool.append($tableInfo.getName(),$modelSuffix))}
+
+
+#*remove column prefix like when column is f_hello want generate hello, you can substring the column name*#
+###set($removeColumnPrefix="f_")
+###foreach($column in $tableInfo.fullColumn)
+##    #if($column.obj.name.startsWith($removeColumnPrefix))
+##        $!column.setName($tool.firstLowerCase($column.getName().substring(1)))
+##    #end
+###end
+
+
+
+###foreach($column in $tableInfo.fullColumn)
+##    #set($propertyName=$column.obj.name)
+##    #set($propertyName=$propertyName.substring(0,1).toLowerCase()+$propertyName.substring(1))
+##    $!column.setName($propertyName)
+##    #if($propertyName.endsWith("ID"))
+##        #set($lenght=$propertyName.length() - 2)
+##        #set($theName=${propertyName.substring(0,$lenght)}+"Id")
+##        $!column.setName($theName)
+##    #end
+###end

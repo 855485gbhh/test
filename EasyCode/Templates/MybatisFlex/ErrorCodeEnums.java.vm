@@ -1,0 +1,43 @@
+##导入宏定义
+$!{define.vm}
+$!{mybatisCodehelper.vm}
+#set($entityName="ErrorCodeEnums")
+#set($ErrorCodeEnumsPackageName=$tool.append(${pojoPackageName}, ".enums"))
+#set($ErrorCodeEnumsSrcFolder="${projectPath}/src/main/java")
+#set($ErrorCodeEnumsSavePath = $tool.append(${ErrorCodeEnumsSrcFolder},"/",${ErrorCodeEnumsPackageName.replace(".","/")}))
+
+$!callback.setSavePath($ErrorCodeEnumsSavePath)
+$!callback.setFileName($tool.append($entityName, ".java"))
+
+##自动导入包（全局变量）
+package ${ErrorCodeEnumsPackageName};
+
+public enum ErrorCodeEnums {
+
+    DEFAULT(0, "success"),
+    SYSTEM_ERROR(49999, "system error"),
+    USER_NOT_CHECK_AUTH(40100, "user unauthenticated");
+
+    /**
+     * 状态码
+     */
+    private final int code;
+
+    /**
+     * 信息
+     */
+    private final String message;
+
+    ErrorCodeEnums(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}

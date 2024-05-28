@@ -1,0 +1,49 @@
+$!{define.vm}
+$!{mybatisCodehelper.vm}
+$!callback.setWriteFile(true)
+##设置表后缀（宏定义）
+##设置回调
+#set($utilName=${responseName})
+#set($utilsSavePath = $tool.append(${pojoSrcFolder},"/",${pojoPackageName.replace(".","/")},"/response"))
+
+$!callback.setSavePath($utilsSavePath)
+$!callback.setFileName($tool.append($utilName, ".java"))
+##copy class to your project, example is from: https://github.com/gejun123456/exception-handler-demo
+package $!{pojoPackageName}.response;
+import ${pojoPackageName}.enums.ErrorCodeEnums;
+
+#if(${useLombok})
+@Data
+#end
+@Builder
+@NoArgsConstructor
+public class $!{utilName}<T> {
+
+private int code;
+
+private T data;
+
+private String errorMsg;
+
+public JsonResponse(int code,T data,String errorMsg){
+        this.code=code;
+        this.data=data;
+        this.errorMsg=errorMsg;
+        }
+
+public JsonResponse(int code,T data){
+        this(code,data,"");
+        }
+
+public JsonResponse(ErrorCodeEnums errorCode,String errorMsg){
+        this(errorCode.getCode(),null,errorMsg);
+        }
+
+public JsonResponse(ErrorCodeEnums errorCode){
+        this(errorCode.getCode(),null,errorCode.getMessage());
+        }
+
+public JsonResponse(int errorCode,String errorMsg){
+        this(errorCode,null,errorMsg);
+        }
+}

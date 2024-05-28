@@ -1,0 +1,40 @@
+##导入宏定义
+$!{define.vm}
+$!{mybatisCodehelper.vm}
+
+#set($entitySavePath = $tool.append(${pojoSrcFolder},"/",${entityPackageName.replace(".","/")}))
+
+$!callback.setSavePath($entitySavePath)
+$!callback.setFileName($tool.append($entityName, ".java"))
+
+##自动导入包（全局变量）
+package ${entityPackageName};
+
+import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+$!{autoImport.vm}
+##表注释（宏定义）
+###tableComment("表实体类")
+#if(${useLombok})
+@Data
+#end
+public class $!{entityName}  {
+#foreach($column in $tableInfo.fullColumn)
+#if(${column.obj.name} == ${tableInfo.pkColumn.get(0).obj.name})
+#else
+#end
+    private $!{tool.getClsNameByFullName($column.type)} $!{column.name};  #if(${column.comment})//$!{column.comment}#end
+#end
+
+#if($useLombok)
+#else
+#foreach($column in $tableInfo.fullColumn)
+    #getSetMethod($column)
+#end
+#end
+}
