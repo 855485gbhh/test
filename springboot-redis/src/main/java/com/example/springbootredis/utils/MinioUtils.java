@@ -766,7 +766,6 @@ public class MinioUtils {
             if (res == false) {
                 throw new RuntimeException("该存储桶不存在");
             }
-
             //有即为bucket设置Tags标签
             //定义多标签
 //            Map<String, String> tagMap = new HashMap<>();
