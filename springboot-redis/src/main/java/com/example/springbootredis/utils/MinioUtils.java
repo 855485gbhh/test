@@ -816,5 +816,5 @@ public class MinioUtils {
         return true;
     }
 
-    public static void test(){}
+
 }
